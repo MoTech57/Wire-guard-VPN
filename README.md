@@ -34,7 +34,7 @@ The environment was designed with security, remote accessibility, and network se
 
 ## Logical Diagram
 
-![Network Diagram]([https://imgur.com/a/F6TP7Tb](https://imgur.com/tRV1xtU)))
+![Network Diagram]ChatGPT Image.png
 
 ---
 
