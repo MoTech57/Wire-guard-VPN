@@ -1,40 +1,18 @@
-# Wire-guard-VPN
-For this project, I will demonstrate how to set up a WireGuard VPN to securely access LAN resources—such as a UGREEN NAS—remotely, without exposing any services directly to the internet.
-
-# Secure Remote NAS Access with OPNsense & WireGuard VPN
-
-The environment was designed with security, remote accessibility, and network segmentation in mind while maintaining low power consumption for a home lab setup.
-
----
-
-# Objectives
-
-- Securely access NAS files remotely
-- Avoid exposing SMB or NAS management ports publicly
-- Configure encrypted VPN connectivity
-- Implement firewall rules and controlled remote access
-- Gain hands-on experience with VPN deployment and network security
-
----
-
-# Technologies Used
-
-| Technology | Purpose |
-|---|---|
-| OPNsense | Router / Firewall |
-| WireGuard | Secure VPN Tunnel |
-| UGREEN NAS | File Storage |
-| Switch | LAN Connectivity |
-| VLANs | Network Segmentation |
-| Dynamic DNS | Remote Connectivity |
-
----
-
 # Network Topology
 
 ## Logical Diagram
 
-![Network Diagram]ChatGPT Image.png
+<p align="center">
+  <img src="https://i.imgur.com/tRV1xtU.png" alt="WireGuard VPN Network Diagram" width="850">
+</p>
+
+### Network Flow
+
+```text
+Remote Device → Internet → OPNsense Firewall → Internal LAN → NAS Resources
+```
+
+The WireGuard VPN tunnel securely connects remote devices to the internal network without exposing NAS services directly to the public internet.
 
 ---
 
@@ -42,30 +20,10 @@ The environment was designed with security, remote accessibility, and network se
 
 | Device | IP Address | Purpose |
 |---|---|---|
-| OPNsense Firewall | 192.168.1.1 | Gateway / VPN |
-| NAS | 192.168.1.50 | File Storage |
-| Raspberry Pi | 192.168.1.60 | Plex Server |
-| WireGuard VPN Network | 10.0.0.0/24 | VPN Clients |
-
----
-
-# Why WireGuard?
-
-WireGuard was selected because it is:
-
-- Lightweight
-- Faster than traditional VPN protocols
-- Easier to configure and maintain
-- Modern cryptography
-- Excellent mobile support
-
----
-
-# VPN Architecture
-
-Remote devices connect securely to the OPNsense firewall through WireGuard.
-
-Traffic is encrypted and routed into the internal LAN, allowing secure access to NAS resources as if connected locally.
+| OPNsense Firewall | 192.168.x.x | Gateway / VPN |
+| UGREEN NAS | 192.168.x.x | File Storage |
+| Raspberry Pi | 192.168.x.x | Plex Media Server |
+| WireGuard VPN Network | 10.x.x.x/24 | VPN Tunnel Network |
 
 ---
 
@@ -77,3 +35,211 @@ Navigate to:
 
 ```text
 System → Firmware → Plugins
+```
+
+Install:
+
+```text
+os-wireguard
+```
+
+> Note: In newer OPNsense releases, WireGuard may already be integrated and available under the VPN section.
+
+---
+
+# 2. Enable WireGuard
+
+Navigate to:
+
+```text
+VPN → WireGuard → General
+```
+
+- Enable WireGuard
+- Save and Apply changes
+
+---
+
+# 3. Create a Local Instance
+
+Navigate to:
+
+```text
+VPN → WireGuard → Local
+```
+
+Click:
+
+```text
++ Add
+```
+
+Configure:
+
+| Setting | Example Value |
+|---|---|
+| Name | wg0 |
+| Listen Port | 51820 |
+| Tunnel Address | 10.10.10.1/24 |
+
+Generate the following:
+
+- Private Key
+- Public Key
+
+Save and Apply changes.
+
+---
+
+# 4. Configure Peer Device
+
+Navigate to:
+
+```text
+VPN → WireGuard → Endpoints
+```
+
+Add a peer device (Laptop / Phone).
+
+Example:
+
+| Setting | Example Value |
+|---|---|
+| Allowed IPs | 10.10.10.2/32 |
+| Endpoint Address | Dynamic / Remote Client |
+
+Save configuration.
+
+---
+
+# 5. Assign WireGuard Interface
+
+Navigate to:
+
+```text
+Interfaces → Assignments
+```
+
+- Add the WireGuard interface
+- Enable the interface
+- Save and Apply
+
+---
+
+# 6. Configure Firewall Rules
+
+## WAN Rule
+
+Navigate to:
+
+```text
+Firewall → Rules → WAN
+```
+
+Allow:
+
+| Setting | Value |
+|---|---|
+| Protocol | UDP |
+| Destination Port | 51820 |
+
+---
+
+## WireGuard Interface Rule
+
+Navigate to:
+
+```text
+Firewall → Rules → WireGuard
+```
+
+Allow traffic from:
+
+```text
+WireGuard Net → LAN Net
+```
+
+---
+
+# 7. Configure Outbound NAT
+
+Navigate to:
+
+```text
+Firewall → NAT → Outbound
+```
+
+Switch mode to:
+
+```text
+Hybrid Outbound NAT
+```
+
+Create NAT rule for:
+
+```text
+10.10.10.0/24
+```
+
+---
+
+# 8. Configure WireGuard Client
+
+Install the WireGuard client on:
+
+- Windows
+- macOS
+- Linux
+- Android
+- iPhone
+
+Example client configuration:
+
+```ini
+[Interface]
+PrivateKey = CLIENT_PRIVATE_KEY
+Address = 10.10.10.2/24
+DNS = 192.168.x.x
+
+[Peer]
+PublicKey = SERVER_PUBLIC_KEY
+Endpoint = yourdomain.ddns.net:51820
+AllowedIPs = 192.168.x.x/24
+PersistentKeepalive = 25
+```
+
+---
+
+# 9. Testing Connectivity
+
+After connecting to the VPN:
+
+## Verify Gateway Access
+
+```bash
+ping 192.168.x.x
+```
+
+## Access NAS Resources
+
+### SMB Share
+
+```text
+\\192.168.x.x
+```
+
+### Web Interface
+
+```text
+http://192.168.x.x
+```
+
+---
+
+# Security Considerations
+
+- NAS services are not publicly exposed
+- VPN traffic is fully encrypted
+- Firewall policies restrict unauthorized access
+- WireGuard uses modern cryptography
+- Internal resources remain segmented and protected
