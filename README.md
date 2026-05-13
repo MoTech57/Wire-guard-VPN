@@ -1,3 +1,16 @@
+## Project Overview
+
+This project demonstrates the implementation of a secure remote access VPN using WireGuard on an OPNsense firewall. The goal is to provide encrypted access to internal network resources (NAS, Plex server) without exposing services to the public internet.
+
+Key skills demonstrated:
+- VPN configuration (WireGuard)
+- Firewall rule management
+- NAT configuration
+- Network segmentation
+- Secure remote access design
+
+
+
 # Network Topology
 
 ## Logical Diagram
