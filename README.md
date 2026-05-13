@@ -247,7 +247,26 @@ ping 192.168.x.x
 http://192.168.x.x
 ```
 
+# Skills Gained
+
+- Configured WireGuard VPN on OPNsense
+- Implemented secure remote access design
+- Created firewall rules for controlled access
+- Configured NAT for VPN subnet routing
+- Troubleshot connectivity using ping and service access
+
 ---
+# Troubleshooting
+
+## Issue: Unable to connect to VPN
+- Verified UDP port 51820 is open on WAN
+- Confirmed public IP/DDNS resolution
+- Checked firewall rules
+
+## Issue: Connected but cannot access LAN
+- Verified AllowedIPs configuration
+- Checked NAT outbound rules
+- Ensured WireGuard interface rules allow LAN access
 
 # Security Considerations
 
